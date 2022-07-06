@@ -24,9 +24,9 @@ const createBooks = async (req,res) =>{
 
         if (!validator.isValid(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
 
-        if (!reviews) return res.status(400).send({ status: false, message: "subcategory is required" })
+        if (reviews) return res.status(400).send({ status: false, message: "review is required" })
         
-        if (!releasedAt) return res.status(400).send({ status: false, message: "title is required" })
+       // if (!releasedAt) return res.status(400).send({ status: false, message: "title is required" })
 
       //  if(/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) return res.status(400).send({status: false, message : "Invalid date format."})
 
