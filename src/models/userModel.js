@@ -11,8 +11,6 @@
           city: {type:String},
           pincode: {type:String}
         },
-        createdAt: {timestamp},
-        updatedAt: {timestamp}
       },{ timestamps: true})
 
 module.exports = mongoose.model("user",userSchema)      
