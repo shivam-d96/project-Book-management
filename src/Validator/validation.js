@@ -21,7 +21,17 @@ const isValidMobile = function (y) {
    if (mobileRegex.test(y)) return true
 }
 
+
+const isValidArray = (value) => {
+    if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+            if (value[i].trim().length === 0 || typeof (value[i]) !== "string") { return false }
+        }
+        return true
+    } else { return false }
+}
 module.exports.isValidBody = isValidBody
 module.exports.isValid = isValid
 module.exports.isValidEmail = isValidEmail
 module.exports.isValidMobile = isValidMobile
+module.exports.isValidArray = isValidArray
