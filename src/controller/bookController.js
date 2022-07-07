@@ -45,7 +45,7 @@ const createBooks = async (req,res) =>{
     }
 }
 
-const getBooks = async function () {
+const getBooks = async function (req,res) {
    try 
    { const filterByQuery = { isDeleted: false }
     const { userId, category, subcategory } = req.query;
