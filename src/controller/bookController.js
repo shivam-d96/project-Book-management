@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const bookModel = require("../models/booksModel");
 const validator = require("../Validator/validation")
+const moment = require("moment")
 
 const userModel = require("../models/userModel")
 
@@ -26,9 +27,15 @@ const createBooks = async (req, res) => {
 
         if (reviews) return res.status(400).send({ status: false, message: "review is required" })
 
-        if (!releasedAt) return res.status(400).send({ status: false, message: "title is required" })
+        if (!releasedAt) return res.status(400).send({ status: false, message: "releasedAt is required" })
 
-        //  if(/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) return res.status(400).send({status: false, message : "Invalid date format."})
+        //if(/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) return res.status(400).send({status: false, message : "Invalid date format."})
+
+        if (!moment(releasedAt, "YYYY-MM-DD", true).isValid())
+            return res.status(400).send({
+                status: false,
+                message: "Enter a valid date with the format (YYYY-MM-DD).",
+            });
 
         if (!mongoose.isValidObjectId(req.body.userId)) return res.status(400).send({ status: false, msg: "please enter valid userId" })
 
@@ -84,22 +91,26 @@ const getBooks = async function (req, res) {
 
 const deleteByBooKId = async (req, res) => {
 
-    let bookid = req.params.bookId;
+    try {
+        let bookid = req.params.bookId;
 
-    if (!mongoose.isValidObjectId(bookid)) return res.status(400).send({ status: false, msg: "please enter valid BookId" });
+        if (!mongoose.isValidObjectId(bookid)) return res.status(400).send({ status: false, msg: "please enter valid BookId" });
 
-    let isExistsDocument = await bookModel.findOne({ _id: bookid });
+        let isExistsDocument = await bookModel.findOne({ _id: bookid });
 
-    if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
+        if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
 
-    let alreadyDeleted = await bookModel.findById(bookid)
-   
-    if (alreadyDeleted.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
+        let alreadyDeleted = await bookModel.findById(bookid)
 
-    let deleteBook = await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
+        if (alreadyDeleted.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
 
-    return res.status(200).send({ status: true, message: "Book Document deleted successfully.", })
+        let deleteBook = await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
 
+        return res.status(200).send({ status: true, message: "Book Document deleted successfully.", })
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
 }
 
 module.exports.createBooks = createBooks;
