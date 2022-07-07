@@ -111,14 +111,14 @@ const userLogin = async function (req, res) {
                 message: 'Email or Password is not valid',
             });
 
-        let token = jwt.sign(
-            {
-                authorId: finduser._id.toString(),
-            },
-            'group-69',{
-                expiresIn: '2m'
-            }
-        );
+            let token = jwt.sign(
+                {
+                    userId: user._id.toString(),
+                    iat: Math.floor(Date.now()/1000),
+                    ext: Math.floor(Date.now()/1000)+10*60*60 
+                },
+                "projectGroup69-3"               
+            );
         res.setHeader('x-api-key', token);
         res.status(200).send({ status: true, token: token });
     } catch (err) {
