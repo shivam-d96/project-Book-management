@@ -7,5 +7,5 @@ router.post("/register",userController.createUser)
 router.post("/login",userController.userLogin)
 router.post("/books",bookController.createBooks)
 router.get("/books",bookController.getBooks)
-
+router.put("/books/:bookId",bookController.updateBooks)
 module.exports = router;
