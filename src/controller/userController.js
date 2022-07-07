@@ -113,9 +113,9 @@ const userLogin = async function (req, res) {
 
             let token = jwt.sign(
                 {
-                    userId: user._id.toString(),
-                    iat: Math.floor(Date.now()/1000),
-                    ext: Math.floor(Date.now()/1000)+10*60*60 
+                    userId: finduser._id.toString(),
+                    // iat: Math.floor(Date.now()/1000),
+                    // ext: Math.floor(Date.now()/1000)+1*60*60 
                 },
                 "projectGroup69-3"               
             );
