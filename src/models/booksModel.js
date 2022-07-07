@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
-const moment = require('moment');
+//const moment = require('moment');
 //const Date =moment().format('YYYY-MM-DD');
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 
 const bookSchema = new mongoose.Schema({
+  
   title: { type: String, required: true, unique: true },
 
   excerpt: { type: String, required: true },
@@ -24,7 +25,7 @@ const bookSchema = new mongoose.Schema({
   isDeleted: {type:Boolean, default: false},
 
   releasedAt: { type :Date, required: true },
-
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model("book", bookSchema);

@@ -21,6 +21,11 @@ const isValidMobile = function (y) {
    if (mobileRegex.test(y)) return true
 }
 
+const isValidPassword = (value) =>{
+    if (typeof value === "undefined" || value === null) return false
+    const re = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/
+    return re.test(value)
+}
 
 const isValidArray = (value) => {
     if (Array.isArray(value)) {
@@ -30,8 +35,13 @@ const isValidArray = (value) => {
         return true
     } else { return false }
 }
+let isValidTitle = function (title) {
+    return ["Mr", "Mrs", "Miss"].indexOf(title)!==-1
+}
 module.exports.isValidBody = isValidBody
 module.exports.isValid = isValid
 module.exports.isValidEmail = isValidEmail
 module.exports.isValidMobile = isValidMobile
 module.exports.isValidArray = isValidArray
+module.exports.isValidTitle = isValidTitle
+module.exports.isValidPassword = isValidPassword
