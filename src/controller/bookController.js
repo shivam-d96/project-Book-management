@@ -25,7 +25,7 @@ const createBooks = async (req, res) => {
         if (!validator.isValid(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
 
         if (reviews) return res.status(400).send({ status: false, message: "review is required" })
-        
+
         if (!releasedAt) return res.status(400).send({ status: false, message: "title is required" })
 
         //  if(/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) return res.status(400).send({status: false, message : "Invalid date format."})
@@ -45,7 +45,7 @@ const createBooks = async (req, res) => {
     }
 }
 
-const getBooks = async function (req,res) {
+const getBooks = async function (req, res) {
     try {
         const filterByQuery = { isDeleted: false }
         const { userId, category, subcategory } = req.query;
@@ -81,6 +81,28 @@ const getBooks = async function (req,res) {
     }
 }
 
+
+const deleteByBooKId = async (req, res) => {
+
+    let bookid = req.params.bookId;
+
+    if (!mongoose.isValidObjectId(bookid)) return res.status(400).send({ status: false, msg: "please enter valid BookId" });
+
+    let isExistsDocument = await bookModel.findOne({ _id: bookid });
+
+    if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
+
+    let alreadyDeleted = await bookModel.findById(bookid)
+   
+    if (alreadyDeleted.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
+
+    let deleteBook = await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
+
+    return res.status(200).send({ status: true, message: "Book Document deleted successfully.", })
+
+}
+
 module.exports.createBooks = createBooks;
 
 module.exports.getBooks = getBooks;
+module.exports.deleteByBooKId = deleteByBooKId;
