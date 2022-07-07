@@ -89,7 +89,7 @@ const userLogin = async function (req, res) {
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "please enter emailId and password" })
         }
-        let userName = req.body.emailId;
+        let userName = req.body.email;
         if (!userName)
             return res
                 .status(400)
@@ -115,7 +115,9 @@ const userLogin = async function (req, res) {
             {
                 authorId: finduser._id.toString(),
             },
-            'group-69'
+            'group-69',{
+                expiresIn: '2m'
+            }
         );
         res.setHeader('x-api-key', token);
         res.status(200).send({ status: true, token: token });
