@@ -14,7 +14,7 @@ const authenticate = function (req, res, next) {
             const validToken = jwt.decode(token)
             if (validToken) {
                 try {
-                    jwt.verify(token, "project-3")
+                    jwt.verify(token, "group-69")
                     next()
                 }
                 catch (error) {

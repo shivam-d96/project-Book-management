@@ -88,6 +88,32 @@ const getBooks = async function (req, res) {
     }
 }
 
+const getBookById = async function (req ,res){
+    try{
+    let bookid = req.params.bookId
+    
+    
+    if (!mongoose.Types.objectId.isValid(bookid)) 
+    return res.status(400).send({ status: false, message: " bookId is invalid" })
+    
+     let bookDetails   =  await booksModel.findone({_id:bookid,isDeleted:false})
+    
+    if(!bookDetails)
+    return res.status(404).send({status:false,message:"there is no book document pl.insert valid bookId"})
+
+    const reviewsData = await reviewModel.find({bookId:bookDetails["_id"]})
+    bookDetails["reviewsData"]= reviewsData;
+
+    return res.status(200).send({status:true,message: "Books list", data: bookDetails})
+    
+    }
+    
+    
+     catch(err){
+        return res.status(500).send({ status: false, message: err.message})
+    }
+    }
+    
 const updateBooks = async function (req, res) {
 
     try {
@@ -147,7 +173,7 @@ const updateBooks = async function (req, res) {
             res.status(200).send({ status: true, message: "data updated successfully", data: updatedBook })
         }
         else res.status(404).send({ status: false, message: " no such book found" })
-        return res.status(500).send({ status: false, message: error.message });
+        
     }catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -166,13 +192,11 @@ const deleteByBooKId = async (req, res) => {
 
         if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
 
-        let alreadyDeleted = await bookModel.findById(bookid)
+        if (isExistsDocument.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
 
-        if (alreadyDeleted.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
-
-        let deleteBook = await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
-
-        return res.status(200).send({ status: true, message: "Book Document deleted successfully.", })
+         await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
+         
+        return res.status(200).send({ status: true, message: "Book Document deleted successfully." })
     }
     catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -183,3 +207,4 @@ module.exports.createBooks = createBooks;
 module.exports.getBooks = getBooks;
 module.exports.updateBooks = updateBooks;
 module.exports.deleteByBooKId = deleteByBooKId;
+module.exports.getBookById= getBookById;
