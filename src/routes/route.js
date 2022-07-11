@@ -12,4 +12,5 @@ router.get("/books", authenticate, bookController.getBooks)
 router.put("/books/:bookId", authenticate, authorisation, bookController.updateBooks)
 router.delete("/books/:bookId", authenticate, authorisation, bookController.deleteByBooKId);
 router.post("/books/:bookId/review", authenticate, reviewController.createReview)
+router.put("/books/:bookId/review/:reviewId",authenticate, reviewController.updateReview)
 module.exports = router;
