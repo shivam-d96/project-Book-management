@@ -14,13 +14,16 @@ const createBooks = async (req, res) => {
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields" })
 
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: "title is required" })
+        const checkTitle = await bookModel.findOne({title :title});
+        if(checkTitle) return res.status(400).send({ status: false, message: "title is already present"});
 
         if (!validator.isValid(excerpt)) return res.status(400).send({ status: false, message: "excerpt is required" })
 
         if (!validator.isValid(userId)) return res.status(400).send({ status: false, message: "userId is required" })
 
         if (!validator.isValid(ISBN)) return res.status(400).send({ status: false, message: "ISBN number required" })
-
+        const checkISBN = await bookModel.findOne({ISBN: ISBN});
+        
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "title is required" })
 
         if (!validator.isValid(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
