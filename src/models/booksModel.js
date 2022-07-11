@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-//const moment = require('moment');
-//const Date =moment().format('YYYY-MM-DD');
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 
@@ -18,7 +16,7 @@ const bookSchema = new mongoose.Schema({
 
   subcategory: { type: [String], required: true },
 
-  reviews: { type: Number, default: 0, comment: { type: Number } },
+  reviews: { type: Number, default: 0},
 
   deletedAt: { type: Date, default: null },
 

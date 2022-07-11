@@ -10,31 +10,32 @@ const authenticate = function (req, res, next) {
         const token = req.headers["x-api-key"]
 
         if (!token) {
-          return  res.status(400).send({ status: false, message: "token must be present" })
+            return res.status(400).send({ status: false, message: "token must be present" })
         }
         else {
             const validToken = jwt.decode(token)
             if (validToken) {
                 try {
-                    jwt.verify(token, "projectGroup69-3" )
+                    jwt.verify(token, "projectGroup69-3")
                     next()
 
                 }
                 catch (error) {
-                  return res.status(401).send({ status: false, message: error.message })
+                    return res.status(401).send({ status: false, message: error.message })
                 }
             }
             else {
-               return res.status(400).send({ status: false, message: "Invalid token" })
+                return res.status(400).send({ status: false, message: "Invalid token" })
             }
         }
-       
+
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
+//================================================Authorisation======================================================
 const authorisation = async (req, res, next) => {
 
     try {
@@ -47,8 +48,9 @@ const authorisation = async (req, res, next) => {
         let BookDetails = await bookModel.findById(bookid)
 
         //  console.log(BookDetails)
-
         const tokenDecoded = jwt.verify(token, "projectGroup69-3");
+        console.log(tokenDecoded)
+        if (!BookDetails) return res.status(404).send({ status: false, msg: 'No such book exists' })
 
         // console.log(tokenDecoded)
         if (!BookDetails) return res.status(404).send({ status: false, message: 'No such book exists' })
@@ -73,7 +75,7 @@ const verifyUser = async (req, res, next) => {
         if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "Please Enter your valid userId." })
         next()
     } catch (error) {
-       return res.status(500).send({ status: false, message: error.message });
+        return res.status(500).send({ status: false, message: error.message });
     }
 }
 

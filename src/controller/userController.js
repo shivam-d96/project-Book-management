@@ -17,18 +17,14 @@ const createUser = async function (req, res) {
 
         if (!validator.isValid(email))
             return res.status(400).send({ status: false, message: "email id is required." })
-
         if (!validator.isValidEmail(email))
             return res.status(400).send({ status: false, message: "Please provide a valid email e.g. example@example.com" })
-
         const usedEmail = await userModel.findOne({ email })
         if (usedEmail)
             return res.status(400).send({ status: false, message: "Email id already exists. Please use another email id." })
 
         if (!validator.isValid(phone)) return res.status(400).send({ status: false, message: " phone no is required." })
-
         if (!validator.isValidMobile(phone)) return res.status(400).send({ status: false, message: "Please provide a valid phone number (must be in 10 digit)" })
-
         const usedPhone = await userModel.findOne({ phone })
         if (usedPhone)
             return res.status(400).send({ status: false, message: "mobile number already exists. Please provide another mobile number" })
@@ -43,7 +39,6 @@ const createUser = async function (req, res) {
 
         if (!validator.isValid(password))
             return res.status(400).send({ status: false, message: "password is required...!" })
-
         if (!validator.isValidPassword(password))
             return res.status(400).send({ status: false, message: "enter password between 8-15 range,and it should contain one uppercase ,one lowercase and one special character" })
 
@@ -54,20 +49,20 @@ const createUser = async function (req, res) {
             if (!validator.isValid(address.city)) {
                 return res.status(400).send({ status: false, message: "please enter valid city name" })
             }
-            //address.city = address.city;
+            
         }
         if (address.street) {
             if (!validator.isValid(address.street)) {
                 return res.status(400).send({ status: false, message: "please enter valid street name" })
             }
-            //address.street = addresstreet;
+            
         }
         if (address.pincode) {
             re = /^[0-9]{1,6}$/
             if (!re.test(address.pincode)) {
                 return res.status(400).send({ status: false, message: "please enter valid pincode" })
             }
-            //address.pincode = pincode;
+            
         }
         let userData = {}
         if (Object.keys(address).length == 0) {
