@@ -76,7 +76,7 @@ const getBooks = async function (req, res) {
                 return res.status(400).send({ status: false, message: "please enter valid category" })
             }
             const subcategoryArr = subcategory.trim().split(",").map(subcategory => subcategory.trim())
-            filterByQuery["subcategory"] = { $all: subcategoryArr };
+            filterByQuery["subcategory"] = subcategoryArr ;
         }
 
         const books = await bookModel.find(filterByQuery);
