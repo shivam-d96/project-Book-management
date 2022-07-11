@@ -18,26 +18,26 @@ const createBooks = async (req, res) => {
         if (!validator.isValid(excerpt)) return res.status(400).send({ status: false, message: "excerpt is required" })
 
         if (!validator.isValid(userId)) return res.status(400).send({ status: false, message: "userId is required" })
-
+       
+        if(!mongoose.isValidObjectId(userId)) return res.status(400).send({status : false, message : "please enter valid userId"})
+       
         if (!validator.isValid(ISBN)) return res.status(400).send({ status: false, message: "ISBN number required" })
+       
+        if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN." })
+       
+        if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "category is required" })
 
-        if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "title is required" })
-
-        if (!validator.isValid(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
+        if (!validator.isValidArray(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
 
         if (reviews) return res.status(400).send({ status: false, message: "review is required" })
 
         if (!releasedAt) return res.status(400).send({ status: false, message: "releasedAt is required" })
-
-        //if(/^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.test(releasedAt)) return res.status(400).send({status: false, message : "Invalid date format."})
 
         if (!moment(releasedAt, "YYYY-MM-DD", true).isValid())
             return res.status(400).send({
                 status: false,
                 message: "Enter a valid date with the format (YYYY-MM-DD).",
             });
-
-        if (!mongoose.isValidObjectId(req.body.userId)) return res.status(400).send({ status: false, msg: "please enter valid userId" })
 
         const userid = await userModel.findById(req.body.userId);
         if (!userid) return res.status(400).send({ status: false, message: "no such userId present" })
@@ -79,12 +79,14 @@ const getBooks = async function (req, res) {
             filterByQuery["subcategory"] = { $all: subcategoryArr };
         }
 
-        const books = await bookModel.find(filterByQuery);
+        const books = await bookModel.find(filterByQuery).sort({ title: 1 });
 
         if (books.length == 0) return res.status(404).send({ status: false, message: "books not found" });
+
         return res.status(200).send({ status: true, message: "Books list", data: books })
-    } catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
     }
 }
 
@@ -94,7 +96,7 @@ const updateBooks = async function (req, res) {
         bookId = req.params.bookId;
         // Validating the bookId
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
-            return res.status(400).send({ status: false, msg: "BookId is invalid " })
+            return res.status(400).send({ status: false, message: "BookId is invalid " })
         }
         // Checking if BookId exist or not
         const book = await bookModel.findOne({ _id: bookId, isDeleted: false });
@@ -148,7 +150,7 @@ const updateBooks = async function (req, res) {
         }
         else res.status(404).send({ status: false, message: " no such book found" })
         return res.status(500).send({ status: false, message: error.message });
-    }catch (err) {
+    } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
@@ -170,7 +172,7 @@ const deleteByBooKId = async (req, res) => {
 
         if (alreadyDeleted.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
 
-        let deleteBook = await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
+       await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
 
         return res.status(200).send({ status: true, message: "Book Document deleted successfully.", })
     }

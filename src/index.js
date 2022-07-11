@@ -6,6 +6,8 @@ const app = express();
 const multer = require('multer')
 app.use(multer().any());
 app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 
 mongoose.connect("mongodb+srv://shivanishukla:anupam1985@cluster0.joqko.mongodb.net/group69Database?retryWrites=true&w=majority", {

@@ -91,15 +91,11 @@ const userLogin = async function (req, res) {
         }
         let userName = req.body.email;
         if (!userName)
-            return res
-                .status(400)
-                .send({ status: false, message: 'please enter emailId' });
+            return res.status(400).send({ status: false, message: 'please enter emailId' });
 
         let password = req.body.password;
         if (!password)
-            return res
-                .status(400)
-                .send({ status: false, message: 'please enter password' });
+            return res.status(400).send({ status: false, message: 'please enter password' });
 
         let finduser = await userModel.findOne({
             email: userName,
@@ -114,15 +110,19 @@ const userLogin = async function (req, res) {
             let token = jwt.sign(
                 {
                     userId: finduser._id.toString(),
-                    // iat: Math.floor(Date.now()/1000),
-                    // ext: Math.floor(Date.now()/1000)+1*60*60 
                 },
-                "projectGroup69-3"               
+                "projectGroup69-3" ,
+                {expiresIn: '10m'}       
             );
-        res.setHeader('x-api-key', token);
-        res.status(200).send({ status: true, token: token });
+         res.setHeader('x-api-key', token);
+
+         jwt.verify(token, "projectGroup69-3", (err, result)=>{
+            if(err) return res.status(400).send({status: false, message : err})
+            else return res.status(200).send({ status: true, message :"user successfully login", token: token, result})
+        } )
+       //return res.status(200).send({ status: true, message :"user successfully login", token: token });
     } catch (err) {
-        res.status(500).send({ status: false, message: err.message });
+       return res.status(500).send({ status: false, message: err.message });
     }
 };
 
