@@ -14,6 +14,8 @@ const createBooks = async (req, res) => {
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields" })
 
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: "title is required" })
+        const checkTitle = await bookModel.findOne({title :title});
+        if(checkTitle) return res.status(400).send({ status: false, message: "title is already present"});
 
         if (!validator.isValid(excerpt)) return res.status(400).send({ status: false, message: "excerpt is required" })
 
@@ -22,8 +24,9 @@ const createBooks = async (req, res) => {
         if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "please enter valid userId" })
 
         if (!validator.isValid(ISBN)) return res.status(400).send({ status: false, message: "ISBN number required" })
-
-        if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN." })
+        const checkISBN = await bookModel.findOne({ISBN: ISBN});
+        
+        if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "title is required" })
 
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "category is required" })
 
@@ -79,7 +82,7 @@ const getBooks = async function (req, res) {
             filterByQuery["subcategory"] = subcategoryArr;
         }
 
-        const books = await bookModel.find(filterByQuery).sort({ title: 1 });
+        const books = await bookModel.find(filterByQuery).select({title:1,excerpt:1,userID:1,category:1,releasedAt:1,reviews:1}).sort({title:1});
 
         if (books.length == 0) return res.status(404).send({ status: false, message: "books not found" });
 
