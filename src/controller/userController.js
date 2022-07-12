@@ -2,6 +2,8 @@ const userModel = require("../models/userModel");
 const jwt = require('jsonwebtoken');
 const validator = require("../Validator/validation")
 
+//--------------- Create User/Resgiter API's --------//
+
 const createUser = async function (req, res) {
 
     try {
@@ -49,20 +51,20 @@ const createUser = async function (req, res) {
             if (!validator.isValid(address.city)) {
                 return res.status(400).send({ status: false, message: "please enter valid city name" })
             }
-            
+
         }
         if (address.street) {
             if (!validator.isValid(address.street)) {
                 return res.status(400).send({ status: false, message: "please enter valid street name" })
             }
-            
+
         }
         if (address.pincode) {
             re = /^[0-9]{1,6}$/
             if (!re.test(address.pincode)) {
                 return res.status(400).send({ status: false, message: "please enter valid pincode" })
             }
-            
+
         }
         let userData = {}
         if (Object.keys(address).length == 0) {
@@ -78,7 +80,8 @@ const createUser = async function (req, res) {
         res.status(500).send({ status: false, message: err.message });
     }
 }
-
+        
+    // ------ Loging  API's-----//  
 const userLogin = async function (req, res) {
     try {
         if (Object.keys(req.body).length == 0) {
@@ -102,22 +105,22 @@ const userLogin = async function (req, res) {
                 message: 'Email or Password is not valid',
             });
 
-            let token = jwt.sign(
-                {
-                    userId: finduser._id.toString(),
-                },
-                "projectGroup69-3" ,
-                {expiresIn: '10m'}       
-            );
-         res.setHeader('x-api-key', token);
+        let token = jwt.sign(
+            {
+                userId: finduser._id.toString(),
+            },
+            "projectGroup69-3",
+            { expiresIn: '10m' }
+        );
+        res.setHeader('x-api-key', token);
 
-         jwt.verify(token, "projectGroup69-3", (err, result)=>{
-            if(err) return res.status(400).send({status: false, message : err})
-            else return res.status(200).send({ status: true, message :"user successfully login", token: token, result})
-        } )
-       //return res.status(200).send({ status: true, message :"user successfully login", token: token });
+        jwt.verify(token, "projectGroup69-3", (err, result) => {
+            if (err) return res.status(400).send({ status: false, message: err })
+            else return res.status(200).send({ status: true, message: "user successfully login", token: token, result })
+        })
+        //return res.status(200).send({ status: true, message :"user successfully login", token: token });
     } catch (err) {
-       return res.status(500).send({ status: false, message: err.message });
+        return res.status(500).send({ status: false, message: err.message });
     }
 };
 

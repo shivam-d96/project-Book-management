@@ -3,6 +3,8 @@ const reviewModel = require("../models/reviewModel");
 const bookModel = require("../models/booksModel")
 const validator = require("../Validator/validation")
 
+//----------- create Book By Id API's--------//
+
 const createReview = async function (req, res) {
     try {
         let data = { reviewedBy, rating, review } = req.body
@@ -17,22 +19,21 @@ const createReview = async function (req, res) {
                 return res.status(400).send({ status: false, message: "please enter review in string" })
         }
 
-        if (!/^.{1,5}$/.test(rating))
-            return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
+        // -----  validation rating range 1 to 5 -----//
+         if (!/[1-5]/.test(rating))
+             return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
 
         if (!mongoose.Types.ObjectId.isValid(req.params.bookId))
-            return res.status(400).send({ status: false, msg: "please enter valid bookId" })
+            return res.status(400).send({ status: false, message: "please enter valid bookId" })
+
         const updatedBook = await bookModel.findByIdAndUpdate(req.params.bookId, { $inc: { reviews: 1 } }, { new: true }).lean();
-        if (!updatedBook) return res.status(400).send({ status: false, msg: "No book found with this BookId" })
+
+        if (!updatedBook) return res.status(400).send({ status: false, message: "No book found with this BookId" })
 
         data.reviewedAt = new Date();
         data.bookId = req.params.bookId;
         let createdReview = await reviewModel.create(data);
         updatedBook.reviewData = createdReview;
-
-
-
-
 
         const bookData = await reviewModel.findById(createdReview["_id"], { isDeleted: 0, __v: 0 });
         updatedBook["reviewsData"] = createdReview;
@@ -46,6 +47,7 @@ const createReview = async function (req, res) {
     }
 }
 
+//------ update Book & Review By Id API's-------//
 
 const updateReview = async function (req, res) {
     try {
@@ -92,7 +94,7 @@ const updateReview = async function (req, res) {
     }
 }
 
-
+// -------------Delete Book & Review By Id API's--------//
 
 const deleteByreviewId = async (req, res) => {
     try {
@@ -122,7 +124,7 @@ const deleteByreviewId = async (req, res) => {
 
         //---------------- Book Document already delete or not ---------//
 
-        if (isExistsBook.isDeleted == true) return res.status(200).send({ status: true, message: " Book Document already deleted." })
+        if (isExistsBook.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document already deleted." })
 
         //---------------review delete ------------------//
 
@@ -138,7 +140,6 @@ const deleteByreviewId = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message });
     }
 }
-
 
 module.exports.createReview = createReview;
 module.exports.deleteByreviewId = deleteByreviewId
