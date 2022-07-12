@@ -2,32 +2,41 @@ const { default: mongoose, now } = require("mongoose");
 const reviewModel = require("../models/reviewModel");
 const bookModel = require("../models/booksModel")
 const validator = require("../Validator/validation")
+const moment = require("moment");
 
 //----------- create Book By Id API's--------//
 
 const createReview = async function (req, res) {
     try {
-        let data = { reviewedBy, rating, review,bookId } = req.body
+        let data = { reviewedBy, rating, review, bookId,reviewedAt } = req.body
 
-        if(Object.keys( req.body).length == 0) return res.status(400).send({status: false, message: "fill all fields."})
+        if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields." })
 
-        if(!bookId) return res.status(400).send({status: false, message: "Please enter bookId"})
+        if (!mongoose.Types.ObjectId.isValid(req.params.bookId))
+
+            return res.status(400).send({ status: false, message: "please enter valid bookId" })
+
+        if (!bookId) return res.status(400).send({ status: false, message: "Please enter bookId" })
+
         if (reviewedBy || reviewedBy == "") {
             if (!validator.isValid(reviewedBy))
                 return res.status(400).send({ status: false, message: "name of reviewer is required here." })
         } else reviewedBy = "guest";
+        
+        if(!reviewedAt) return res.status(400).send({status: false, message : "Please enter reviewedAt."})
 
-        if (review || review == "") {
-            if (!validator.isValid(review))
-                return res.status(400).send({ status: false, message: "please enter review in string" })
-        }
+        if(!rating) return res.status(400).send({status: false, message: "Please enter rating."})
+
+        if (!moment(reviewedAt, "YYYY-MM-DD", true).isValid())
+        return res.status(400).send({
+            status: false,
+            message: "Enter a valid date with the format (YYYY-MM-DD).",
+        });
 
         // -----  validation rating range 1 to 5 -----//
-         if (!/[1-5]/.test(rating))
-             return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
+        if (!/[1-5]/.test(rating))
+            return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
 
-        if (!mongoose.Types.ObjectId.isValid(req.params.bookId))
-            return res.status(400).send({ status: false, message: "please enter valid bookId" })
 
         const updatedBook = await bookModel.findByIdAndUpdate(req.params.bookId, { $inc: { reviews: 1 } }, { new: true }).lean();
 
@@ -65,11 +74,11 @@ const updateReview = async function (req, res) {
         if (!checkReviewId && (!mongoose.Types.ObjectId.isValid(reviewId)))
             res.status(404).send({ status: false, message: "review not found enter valid reviewId" })
 
+        let { reviewedBy, rating, review } = req.body
+
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "please enter valid reviewDetails" })
         }
-
-        let { reviewedBy, rating, review } = req.body
         if (reviewedBy || reviewedBy == "") {
             if (!validator.isValid(reviewedBy)) {
                 return res.status(400).send({ status: false, message: "please enter valid reviewer's name" })
