@@ -7,8 +7,10 @@ const createReview =async function (req,res){
 try{
 let data = {reviewedBy,rating,review}=req.body
 
+if(reviewedBy || reviewedBy=="") {
 if (!validator.isValid(reviewedBy)) 
 return res.status(400).send({ status: false, message: "name of reviewer is required here." })
+}else reviewedBy="guest";
 
 if( review || review =="") {
 if (!validator.isValid(review))
@@ -18,18 +20,19 @@ return res.status(400).send({ status: false, message: "please enter review in st
 if ( typeof(rating) != "number" && 1<=rating<= 5 ) 
 return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
 
-if (!mongoose.isValidObjectId(req.params.bookId)) 
+if (!mongoose.Types.ObjectId.isValid(req.params.bookId)) 
 return res.status(400).send({ status: false, msg: "please enter valid bookId" })
-const updatedBook = await bookmodel.findByIdAndUpdate(req.params.bookId,{ reviews: ++reviews},{new: true});
+const updatedBook = await bookModel.findByIdAndUpdate(req.params.bookId,{$inc: { reviews: 1 }},{new: true});
 if (!updatedBook) return res.status(400).send({ status: false, msg: "No book found with this BookId" })
 data.reviewedAt = new Date(); 
- await reviewModel.create(data);
-const bookData = await reviewModel.find({bookId : req.params.bookId});
-updatedBook.reviewsData = bookData; 
+data.bookId = req.params.bookId;
+let createdReview= await reviewModel.create(data);
+const bookData = await reviewModel.findById(createdReview["_id"]);
+updatedBook["reviewsData"] = createdReview; 
 
 return res.status(201).send({ status: true,  message: 'Success' ,data: updatedBook })
 
-    } catch (error) {
+    } catch (error) {console.log(error)
         return res.status(500).send({ status: false, message: error.message });
 
     }
@@ -127,7 +130,7 @@ const deleteByreviewId = async (req, res) => {
 }
 
 
-module.exports.reviewsData = reviewsData;
+module.exports.createReview = createReview;
 module.exports.deleteByreviewId = deleteByreviewId
 module.exports.updateReview = updateReview;
 
