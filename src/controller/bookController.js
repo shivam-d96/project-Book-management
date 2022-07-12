@@ -34,8 +34,6 @@ const createBooks = async (req, res) => {
 
         if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN" })
 
-        if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "title is required" })
-
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "category is required" })
 
         if (!validator.isValidArray(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
@@ -67,9 +65,11 @@ const getBooks = async function (req, res) {
         const filterByQuery = { isDeleted: false }
         const queryData = { userId, category, subcategory } = req.query;
 
-        if (Object.keys(queryData).length == 0) {
-            return res.status(400).send({ status: false, message: "please enter valid query params to filter the data. Valid queries are userId, category and subcategory" })
-        }
+        let getallBooks = await bookModel.find({isDeleted : false});
+
+        // if (Object.keys(queryData).length == 0) {
+        //     return res.status(400).send({ status: false, message: "please enter valid query params to filter the data. Valid queries are userId, category and subcategory" })
+        // }
         if (userId || userId == "") {
             if (!mongoose.Types.ObjectId.isValid(userId)) {
                 return res.status(400).send({ status: false, message: "please give valid userId" })
@@ -89,7 +89,7 @@ const getBooks = async function (req, res) {
             filterByQuery["subcategory"] = subcategoryArr;
         }
 
-        const books = await bookModel.find(filterByQuery).select({ title: 1, excerpt: 1, userID: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 });
+        const books = await bookModel.find({filterByQuery, isDeleted: false}).select({ title: 1, excerpt: 1, userID: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({ title: 1 });
 
         if (books.length == 0) return res.status(404).send({ status: false, message: "books not found" });
 

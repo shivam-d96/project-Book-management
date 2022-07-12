@@ -110,7 +110,7 @@ const userLogin = async function (req, res) {
                 userId: finduser._id.toString(),
             },
             "projectGroup69-3",
-            { expiresIn: '10m' }
+            { expiresIn: '60m' }
         );
         res.setHeader('x-api-key', token);
 

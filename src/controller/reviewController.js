@@ -74,7 +74,7 @@ const updateReview = async function (req, res) {
         }
 
         if (rating || rating == "") {
-            if (typeof (rating) != "number" && 1 <= rating <= 5) {
+            if (!/[1-5]/.test(rating)) {
                 return res.status(400).send({ status: false, message: "please enter rating between 1 to 5" })
             }
         }
