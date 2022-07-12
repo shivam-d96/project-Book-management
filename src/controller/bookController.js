@@ -1,4 +1,5 @@
 const { default: mongoose } = require("mongoose");
+const jwt = require("jsonwebtoken");
 const bookModel = require("../models/booksModel");
 const reviewModel = require("../models/reviewModel");
 const validator = require("../Validator/validation")
@@ -9,9 +10,9 @@ const userModel = require("../models/userModel")
 
 const createBooks = async (req, res) => {
     try {
-        const token = req.headers["x-api-key"];
-        const tokenDecoded = jwt.verify(token, "projectGroup69-3",);
-        if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "you cannot  create book for any other user. so, enter your own user id with which you are logged in " })
+        // const token = req.headers["x-api-key"];
+        // const tokenDecoded = jwt.verify(token, "projectGroup69-3",);
+        // if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "you cannot  create book for any other user. so, enter your own user id with which you are logged in " })
            
         let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = req.body;
 
@@ -39,7 +40,7 @@ const createBooks = async (req, res) => {
 
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "category is required" })
 
-        if (!validator.isValidArray(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required" })
+        if (!validator.isValidArray(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required must be array of string" })
 
         if (!releasedAt) return res.status(400).send({ status: false, message: "releasedAt is required" })
 
@@ -157,8 +158,8 @@ const updateBooks = async function (req, res) {
             }
         }
         if (ISBN || ISBN == "") {
-            if (!validator.isValid(ISBN)) {
-                return res.status(400).send({ status: false, message: "please provide ISBN in valid form" })
+             if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) {
+            return res.status(400).send({ status: false, message: "Invalid ISBN" })
             }
             checkISBN = await bookModel.findOne({ ISBN });
             if (checkISBN) {
@@ -206,8 +207,6 @@ const deleteBybookId = async (req, res) => {
         let isExistsDocument = await bookModel.findOne({ _id: bookId, isDeleted: false });
 
         if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
-
-        if (isExistsDocument.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
 
         await bookModel.updateOne({ _id: bookId, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
 

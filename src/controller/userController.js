@@ -14,7 +14,7 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "No data found, please provide" })
 
         if (!validator.isValid(name))
-            return res.status(400).send({ status: false, message: "user's name is required." })
+            return res.status(400).send({ status: false, message: "user's name is required.(In string)" })
 
 
         if (!validator.isValid(email))
@@ -62,7 +62,7 @@ const createUser = async function (req, res) {
         if (address.pincode) {
             re = /^[0-9]{1,6}$/
             if (!re.test(address.pincode)) {
-                return res.status(400).send({ status: false, message: "please enter valid pincode" })
+                return res.status(400).send({ status: false, message: "please enter valid pincode. it must be of 6 digit" })
             }
 
         }

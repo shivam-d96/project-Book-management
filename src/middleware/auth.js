@@ -49,7 +49,7 @@ const authorisation = async (req, res, next) => {
 
         //  console.log(BookDetails)
         const tokenDecoded = jwt.verify(token, "projectGroup69-3");
-        console.log(tokenDecoded)
+        //console.log(tokenDecoded)
         if (!BookDetails) return res.status(404).send({ status: false, msg: 'No such book exists' })
 
         // console.log(tokenDecoded)
