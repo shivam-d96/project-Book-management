@@ -65,21 +65,6 @@ const authorisation = async (req, res, next) => {
 
 }
 
-// verify User 
-const verifyUser = async (req, res, next) => {
-
-    try {
-        const token = req.headers["x-api-key"];
-        if (!token) return res.status(401).send({ status: false, message: "user has no token" });
-        const tokenDecoded = jwt.verify(token, "projectGroup69-3",);
-        if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "Please Enter your valid userId." })
-        next()
-    } catch (error) {
-        return res.status(500).send({ status: false, message: error.message });
-    }
-}
-
 
 module.exports.authenticate = authenticate
 module.exports.authorisation = authorisation
-module.exports.verifyUser = verifyUser

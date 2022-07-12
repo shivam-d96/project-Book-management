@@ -9,7 +9,10 @@ const userModel = require("../models/userModel")
 
 const createBooks = async (req, res) => {
     try {
-
+        const token = req.headers["x-api-key"];
+        const tokenDecoded = jwt.verify(token, "projectGroup69-3",);
+        if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "you cannot  create book for any other user. so, enter your own user id with which you are logged in " })
+           
         let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = req.body;
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields" })
