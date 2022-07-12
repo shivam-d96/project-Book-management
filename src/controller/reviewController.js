@@ -7,8 +7,11 @@ const validator = require("../Validator/validation")
 
 const createReview = async function (req, res) {
     try {
-        let data = { reviewedBy, rating, review } = req.body
+        let data = { reviewedBy, rating, review,bookId } = req.body
 
+        if(Object.keys( req.body).length == 0) return res.status(400).send({status: false, message: "fill all fields."})
+
+        if(!bookId) return res.status(400).send({status: false, message: "Please enter bookId"})
         if (reviewedBy || reviewedBy == "") {
             if (!validator.isValid(reviewedBy))
                 return res.status(400).send({ status: false, message: "name of reviewer is required here." })
