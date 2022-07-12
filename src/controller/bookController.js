@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const bookModel = require("../models/booksModel");
+const reviewModel = require("../models/reviewModel");
 const validator = require("../Validator/validation")
-const reviewModel = require("../models/reviewModel")
 const moment = require("moment")
 
 const userModel = require("../models/userModel")
@@ -15,7 +15,9 @@ const createBooks = async (req, res) => {
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields" })
 
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: "title is required" })
+       
         const checkTitle = await bookModel.findOne({ title: title });
+       
         if (checkTitle) return res.status(400).send({ status: false, message: "title is already present" });
 
         if (!validator.isValid(excerpt)) return res.status(400).send({ status: false, message: "excerpt is required" })
@@ -26,6 +28,8 @@ const createBooks = async (req, res) => {
 
         if (!validator.isValid(ISBN)) return res.status(400).send({ status: false, message: "ISBN number required" })
         const checkISBN = await bookModel.findOne({ ISBN: ISBN });
+
+        if(!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) return res.status(400).send({status: false, message: "Invalid ISBN"})
 
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "title is required" })
 
@@ -96,18 +100,18 @@ const getBooks = async function (req, res) {
 
 const getBookById = async function (req, res) {
     try {
-        let bookid = req.params.bookId
+        let bookId = req.params.bookId
 
 
-        if (!mongoose.isValidObjectId(bookid))
-            return res.status(400).send({ status: false, message: "bookId is invalid" })
+        if (!mongoose.Types.ObjectId.isValid(bookId))
+            return res.status(400).send({ status: false, message: " bookId is invalid" })
 
-        let bookDetails = await bookModel.findOne({ _id: bookid, isDeleted: false })
+        let bookDetails = await bookModel.findOne({ _id: bookId, isDeleted: false },{__v:0}).lean();
 
         if (!bookDetails)
             return res.status(404).send({ status: false, message: "there is no book document pl.insert valid bookId" })
 
-        const reviewsData = await reviewModel.find({ bookId: bookDetails["_id"] })
+        const reviewsData = await reviewModel.find({ bookId: bookDetails["_id"] },{isDeleted :0, __v:0})
 
         bookDetails["reviewsData"] = reviewsData;
 
@@ -127,9 +131,9 @@ const updateBooks = async function (req, res) {
         bookId = req.params.bookId;
         // Validating the bookId
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
-            return res.status(400).send({ status: false, message: "BookId is invalid " })
+            return res.status(400).send({ status: false, message: "bookId is invalid " })
         }
-        // Checking if BookId exist or not
+        // Checking if bookId exist or not
         const book = await bookModel.findOne({ _id: bookId, isDeleted: false });
         if (!book) {
             return res.status(404).send({ status: false, message: "This bookId does not exist" })
@@ -172,6 +176,12 @@ const updateBooks = async function (req, res) {
                 return res.status(400).send({ status: false, message: "please provide release date in valid form" })
             }
         }
+
+        if (!moment(releasedAt, "YYYY-MM-DD", true).isValid())
+        return res.status(400).send({
+            status: false,
+            message: "Enter a valid date with the format (YYYY-MM-DD).",
+        });
         //updating the data
         const updatedBook = await bookModel.findByIdAndUpdate({ _id: bookId },
             { title: title, excerpt: excerpt, ISBN: ISBN, releasedAt: releasedAt },
@@ -188,20 +198,20 @@ const updateBooks = async function (req, res) {
 
 
 
-const deleteByBooKId = async (req, res) => {
+const deleteBybookId = async (req, res) => {
 
     try {
-        let bookid = req.params.bookId;
+        let bookId = req.params.bookId;
 
-        if (!mongoose.isValidObjectId(bookid)) return res.status(400).send({ status: false, msg: "please enter valid BookId" });
+        if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, msg: "please enter valid bookId" });
 
-        let isExistsDocument = await bookModel.findOne({ _id: bookid });
+        let isExistsDocument = await bookModel.findOne({ _id: bookId });
 
         if (!isExistsDocument) return res.status(404).send({ status: false, message: "Book Document not exists." })
 
         if (isExistsDocument.isDeleted == true) return res.status(200).send({ status: true, message: "Book Document Already Deleted." })
 
-        await bookModel.updateOne({ _id: bookid, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
+        await bookModel.updateOne({ _id: bookId, isDeleted: false }, { $set: { isDeleted: true }, deletedAt: new Date() })
 
         return res.status(200).send({ status: true, message: "Book Document deleted successfully." })
     }
@@ -213,5 +223,5 @@ const deleteByBooKId = async (req, res) => {
 module.exports.createBooks = createBooks;
 module.exports.getBooks = getBooks;
 module.exports.updateBooks = updateBooks;
-module.exports.deleteByBooKId = deleteByBooKId;
+module.exports.deleteBybookId = deleteBybookId;
 module.exports.getBookById = getBookById;
