@@ -22,13 +22,15 @@ return res.status(400).send({ status: false, message: "please enter rating betwe
 
 if (!mongoose.Types.ObjectId.isValid(req.params.bookId)) 
 return res.status(400).send({ status: false, msg: "please enter valid bookId" })
-const updatedBook = await bookModel.findByIdAndUpdate(req.params.bookId,{$inc: { reviews: 1 }},{new: true});
+const updatedBook = await bookModel.findByIdAndUpdate(req.params.bookId,{$inc: { reviews: 1 }},{new: true}).lean();
 if (!updatedBook) return res.status(400).send({ status: false, msg: "No book found with this BookId" })
+
 data.reviewedAt = new Date(); 
 data.bookId = req.params.bookId;
-let createdReview= await reviewModel.create(data);
-const bookData = await reviewModel.findById(createdReview["_id"]);
-updatedBook["reviewsData"] = createdReview; 
+let createdReview = await reviewModel.create(data);
+updatedBook.reviewData = createdReview;
+
+
 
 return res.status(201).send({ status: true,  message: 'Success' ,data: updatedBook })
 
@@ -76,9 +78,9 @@ const updateReview = async function (req,res){
             }
         }
     
-        await reviewModel.findOneAndUpdate(reviewId,$set(reviewDetails),{upsert:true})
-        const books = await bookModel.findById(bookId);
-        books.reviewsData= await reviewModel.find(bookId);
+        let updatedReview=await reviewModel.findOneAndUpdate(reviewId,$set(reviewDetails),{upsert:true});
+        const books = await bookModel.findById(bookId).lean();
+        books.reviewsData= updatedReview;
         res.status(200).send({status:true,message:"Books list", data: books});
         } catch(err) {
             res.send({ status:false , message: err.message })
