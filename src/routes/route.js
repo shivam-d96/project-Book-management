@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require("../controller/userController")
 const bookController = require("../controller/bookController")
 const reviewController = require("../controller/reviewController")
-const { authenticate, authorisation,verifyUser } = require("../middleware/auth");
+const { authenticate, authorisation } = require("../middleware/auth");
 
 router.post("/register", userController.createUser)
 router.post("/login", userController.userLogin)
