@@ -7,12 +7,14 @@ const { authenticate, authorisation } = require("../middleware/auth");
 
 router.post("/register", userController.createUser)
 router.post("/login", userController.userLogin)
-router.post("/books", authenticate, verifyUser, bookController.createBooks)
+router.post("/books", authenticate,  bookController.createBooks)
 router.get("/books", authenticate, bookController.getBooks)
+router.get("/books/:bookId", bookController.getBookById)
+
 router.put("/books/:bookId", authenticate, authorisation, bookController.updateBooks)
 router.delete("/books/:bookId", authenticate, authorisation, bookController.deleteByBooKId);
-router.post("/books/:bookId/review", authenticate, reviewController.createReview)
-router.put("/books/:bookId/review/:reviewId",authenticate, reviewController.updateReview)
-router.put("/books/:bookId/review/:reviewId", reviewController.deleteByreviewId)
+router.post("/books/:bookId/review",  reviewController.createReview)
+router.delete("/books/:bookId/review/:reviewId", reviewController.deleteByreviewId)
 
+router.put("/books/:bookId/review/:reviewId",authenticate, reviewController.updateReview)
 module.exports = router;

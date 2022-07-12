@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const bookModel = require("../models/booksModel");
 const validator = require("../Validator/validation")
+const reviewModel = require("../models/reviewModel")
 const moment = require("moment")
 
 const userModel = require("../models/userModel")
@@ -98,15 +99,16 @@ const getBookById = async function (req, res) {
         let bookid = req.params.bookId
 
 
-        if (!mongoose.Types.objectId.isValid(bookid))
+        if (!mongoose.isValidObjectId(bookid))
             return res.status(400).send({ status: false, message: "bookId is invalid" })
 
-        let bookDetails = await booksModel.findone({ _id: bookid, isDeleted: false })
+        let bookDetails = await bookModel.findOne({ _id: bookid, isDeleted: false })
 
         if (!bookDetails)
             return res.status(404).send({ status: false, message: "there is no book document pl.insert valid bookId" })
 
         const reviewsData = await reviewModel.find({ bookId: bookDetails["_id"] })
+
         bookDetails["reviewsData"] = reviewsData;
 
         return res.status(200).send({ status: true, message: "Books list", data: bookDetails })
