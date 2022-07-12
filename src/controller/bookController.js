@@ -63,13 +63,8 @@ const createBooks = async (req, res) => {
 const getBooks = async function (req, res) {
     try {
         const filterByQuery = { isDeleted: false }
-        const queryData = { userId, category, subcategory } = req.query;
+        const  { userId, category, subcategory } = req.query;
 
-        let getallBooks = await bookModel.find({isDeleted : false});
-
-        // if (Object.keys(queryData).length == 0) {
-        //     return res.status(400).send({ status: false, message: "please enter valid query params to filter the data. Valid queries are userId, category and subcategory" })
-        // }
         if (userId || userId == "") {
             if (!mongoose.Types.ObjectId.isValid(userId)) {
                 return res.status(400).send({ status: false, message: "please give valid userId" })
