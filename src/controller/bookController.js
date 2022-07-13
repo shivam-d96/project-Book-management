@@ -14,28 +14,24 @@ const createBooks = async (req, res) => {
         // const tokenDecoded = jwt.verify(token, "projectGroup69-3",);
         // if (req.body.userId != tokenDecoded.userId) return res.status(403).send({ status: false, message: "you cannot  create book for any other user. so, enter your own user id with which you are logged in " })
            
-        let { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = req.body;
+        let { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = req.body;
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "fill all fields" })
 
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: "title is required" })
-
         const checkTitle = await bookModel.findOne({ title: title });
-
         if (checkTitle) return res.status(400).send({ status: false, message: "title is already present" });
 
         if (!validator.isValid(excerpt)) return res.status(400).send({ status: false, message: "excerpt is required" })
 
         if (!validator.isValid(userId)) return res.status(400).send({ status: false, message: "userId is required" })
-
         if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: "please enter valid userId" })
+        const userid = await userModel.findById(req.body.userId);
+        if (!userid) return res.status(400).send({ status: false, message: "no such userId present" })
 
         if (!validator.isValid(ISBN)) return res.status(400).send({ status: false, message: "ISBN number required" })
-
         const checkISBN = await bookModel.findOne({ ISBN: ISBN });
-
         if (checkISBN) return res.status(400).send({ status: false, message: "ISBN already present" })
-
         if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) return res.status(400).send({ status: false, message: "Invalid ISBN" })
 
         if (!validator.isValid(category)) return res.status(400).send({ status: false, message: "category is required" })
@@ -43,15 +39,13 @@ const createBooks = async (req, res) => {
         if (!validator.isValidArray(subcategory)) return res.status(400).send({ status: false, message: "subcategory is required must be array of string" })
 
         if (!releasedAt) return res.status(400).send({ status: false, message: "releasedAt is required" })
-
         if (!moment(releasedAt, "YYYY-MM-DD", true).isValid())
             return res.status(400).send({
                 status: false,
                 message: "Enter a valid date with the format (YYYY-MM-DD).",
             });
 
-        const userid = await userModel.findById(req.body.userId);
-        if (!userid) return res.status(400).send({ status: false, message: "no such userId present" })
+       
 
         const bookData = await bookModel.create(req.body);
 

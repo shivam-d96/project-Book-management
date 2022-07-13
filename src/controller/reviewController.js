@@ -1,4 +1,4 @@
-const { default: mongoose, now } = require("mongoose");
+const { default: mongoose } = require("mongoose");
 const reviewModel = require("../models/reviewModel");
 const bookModel = require("../models/booksModel")
 const validator = require("../Validator/validation")
@@ -24,8 +24,8 @@ const createReview = async function (req, res) {
         if (!reviewedAt) return res.status(400).send({ status: false, message: "Please enter reviewedAt." })
 
         if (!rating) return res.status(400).send({ status: false, message: "Please enter rating." })
-
-        if (!moment(reviewedAt, "YYYY-MM-DD", true).isValid())
+        data.reviewedAt = new Date();
+        if (!moment(data.reviewedAt, "YYYY-MM-DD", true).isValid())
             return res.status(400).send({
                 status: false,
                 message: "Enter a valid date with the format (YYYY-MM-DD).",
@@ -40,9 +40,9 @@ const createReview = async function (req, res) {
 
         if (!updatedBook) return res.status(400).send({ status: false, message: "No book found with this BookId" })
 
-        data.reviewedAt = new Date();
+        
         data.bookId = req.params.bookId;
-        let createdReview = await reviewModel.create(data).select({ isDeleted: 0, __v: 0 });
+        let createdReview = await reviewModel.create(data);
         updatedBook["reviewsData"] = createdReview;
 
         return res.status(201).send({ status: true, message: 'Success', data: updatedBook })
@@ -122,11 +122,11 @@ const deleteByreviewId = async (req, res) => {
 
         let isExistsReview = await reviewModel.findOne({ _id: reviewId, isDeleted: false });
 
-        if (!isExistsReview) return res.status(400).send({ status: false, message: "Review does not exists." });
+        if (!isExistsReview) return res.status(404).send({ status: false, message: "Review does not exists." });
 
         let isExistsBook = await bookModel.findOne({ _id: bookId, isDeleted: false });
 
-        if (!isExistsBook) return res.status(400).send({ status: false, message: "Book does not exists." });
+        if (!isExistsBook) return res.status(404).send({ status: false, message: "Book does not exists." });
 
         //---------------review delete ------------------//
 
